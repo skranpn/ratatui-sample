@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: OpenStack Auth API
+  version: '1.0'
+paths:
+  /v3/auth/tokens:
+    post:
+      summary: Authenticate and get token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+            example:
+              auth:
+                identity:
+                  methods:
+                    - password
+                  password:
+                    user:
+                      id: ee4dfb6e5540447cb3741905149d9b6e
+                      password: devstacker
+                scope:
+                  project:
+                    id: a6944d763bf64ee6a275f1263fae0352
+      responses:
+        '201':
+          description: Token created
+          headers:
+            X-Subject-Token:
+              description: The authentication token
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '400':
+          description: Invalid request
+  /servers/detail:
+    get:
+      summary: List servers detailed
+      responses:
+        '200':
+          description: A list of servers with details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListServersDetailResponse'
+components:
+  schemas:
+    AuthTokenRequest:
+      type: object
+      required:
+        - auth
+      properties:
+        auth:
+          type: object
+          required:
+            - identity
+            - scope
+          properties:
+            identity:
+              type: object
+              required:
+                - methods
+                - password
+              properties:
+                methods:
+                  type: array
+                  items:
+                    type: string
+                    example: password
+                password:
+                  type: object
+                  required:
+                    - user
+                  properties:
+                    user:
+                      type: object
+                      required:
+                        - id
+                        - password
+                      properties:
+                        id:
+                          type: string
+                        password:
+                          type: string
+            scope:
+              type: object
+              required:
+                - project
+              properties:
+                project:
+                  type: object
+                  required:
+                    - id
+                  properties:
+                    id:
+                      type: string
+
+    AuthTokenResponse:
+      type: object
+      required: 
+        - token
+      properties:
+        token:
+          type: object
+          required:
+            - catalog
+            - expires_at
+          properties:
+            catalog:
+              type: array
+              items:
+                type: object
+                required:
+                  - endpoints
+                  - type
+                  - name
+                properties:
+                  endpoints:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                      properties:
+                        interface:
+                          type: string
+                        url:
+                          type: string
+                  type:
+                    type: string
+                  name:
+                    type: string
+            expires_at:
+              type: string
+              format: date-time
+
+    ListServersDetailResponse:
+      type: object
+      required:
+        - servers
+      properties:
+        servers:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - status
+              - OS-EXT-STS:vm_state
+              - OS-EXT-STS:task_state
+            properties:
+              id:
+                type: string
+                example: 978a4c30-92ef-45c5-bf65-d5624f52a295
+              name:
+                type: string
+              status:
+                type: string
+              OS-EXT-STS:vm_state:
+                type: string
+              OS-EXT-STS:task_state:
+                type: string
+                nullable: true
