@@ -20,7 +20,7 @@ impl App {
         let mut state = state::AppState::Loading;
         if config.is_valid() {
             state = state::AppState::IssueToken {
-                username: config.username.clone(),
+                userid: config.userid.clone(),
                 password: config.password.clone(),
                 tenantid: config.tenantid.clone(),
                 identity_url: config.identity_url.clone(),
@@ -44,13 +44,13 @@ impl App {
                         .handle_events(event::read()?.as_key_press_event());
                 }
                 state::AppState::IssueToken {
-                    ref username,
+                    ref userid,
                     ref password,
                     ref tenantid,
                     ref identity_url,
                 } => {
                     match token::issue_token(
-                        username.clone(),
+                        userid.clone(),
                         password.clone(),
                         tenantid.clone(),
                         identity_url.clone(),

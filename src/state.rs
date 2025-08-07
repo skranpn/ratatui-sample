@@ -4,7 +4,7 @@ pub enum AppState {
     #[default]
     Loading,
     IssueToken {
-        username: String,
+        userid: String,
         password: String,
         tenantid: String,
         identity_url: String,
