@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::state;
 
 struct Fields {
-    username: StringField,
+    userid: StringField,
     password: PasswordField,
     tenantid: StringField,
     identity_url: StringField,
@@ -21,7 +21,7 @@ struct Fields {
 impl Default for Fields {
     fn default() -> Self {
         Fields {
-            username: StringField::new("Username".to_string()),
+            userid: StringField::new("User ID".to_string()),
             password: PasswordField::new("Password".to_string()),
             tenantid: StringField::new("Tenant ID".to_string()),
             identity_url: StringField::new("Identity URL".to_string()),
@@ -32,9 +32,9 @@ impl Default for Fields {
 impl From<&Config> for Fields {
     fn from(config: &Config) -> Self {
         Fields {
-            username: StringField {
-                label: "Username".to_string(),
-                value: config.username.clone(),
+            userid: StringField {
+                label: "User ID".to_string(),
+                value: config.userid.clone(),
             },
             password: PasswordField {
                 label: "Password".to_string(),
@@ -64,7 +64,7 @@ pub struct Config {
     #[serde(skip, default)]
     fields: Fields,
 
-    pub username: String,
+    pub userid: String,
     pub password: String,
     pub tenantid: String,
     pub identity_url: String,
@@ -73,10 +73,10 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            focus: Focus::Username,
+            focus: Focus::UserId,
             message: String::new(),
             fields: Fields::default(),
-            username: String::new(),
+            userid: String::new(),
             password: String::new(),
             tenantid: String::new(),
             identity_url: String::new(),
@@ -93,7 +93,7 @@ impl Config {
         let layout = Layout::vertical(Constraint::from_lengths([1, 1, 1, 1, 1]));
         let [
             message_area,
-            username_area,
+            userid_area,
             password_area,
             tenantid_area,
             identity_url_area,
@@ -101,13 +101,13 @@ impl Config {
 
         let message = Paragraph::new(self.message.clone());
         frame.render_widget(&message, message_area);
-        frame.render_widget(&self.fields.username, username_area);
+        frame.render_widget(&self.fields.userid, userid_area);
         frame.render_widget(&self.fields.password, password_area);
         frame.render_widget(&self.fields.tenantid, tenantid_area);
         frame.render_widget(&self.fields.identity_url, identity_url_area);
 
         let cursor_position = match self.focus {
-            Focus::Username => username_area.offset(self.fields.username.cursor_offset()),
+            Focus::UserId => userid_area.offset(self.fields.userid.cursor_offset()),
             Focus::Password => password_area.offset(self.fields.password.cursor_offset()),
             Focus::TenantId => tenantid_area.offset(self.fields.tenantid.cursor_offset()),
             Focus::IdentityUrl => {
@@ -134,7 +134,7 @@ impl Config {
                             return state::AppState::Loading;
                         }
                         return state::AppState::IssueToken {
-                            username: self.fields.username.value.clone(),
+                            userid: self.fields.userid.value.clone(),
                             password: self.fields.password.value.clone(),
                             tenantid: self.fields.tenantid.value.clone(),
                             identity_url: self.fields.identity_url.value.clone(),
@@ -146,7 +146,7 @@ impl Config {
                 }
                 _ => {
                     match self.focus {
-                        Focus::Username => self.fields.username.on_key_press(key),
+                        Focus::UserId => self.fields.userid.on_key_press(key),
                         Focus::Password => self.fields.password.on_key_press(key),
                         Focus::TenantId => self.fields.tenantid.on_key_press(key),
                         Focus::IdentityUrl => self.fields.identity_url.on_key_press(key),
@@ -168,7 +168,7 @@ impl Config {
             std::fs::create_dir_all(parent)?;
         }
 
-        self.username = self.fields.username.value.clone();
+        self.userid = self.fields.userid.value.clone();
         self.password = self.fields.password.value.clone();
         self.tenantid = self.fields.tenantid.value.clone();
         self.identity_url = self.fields.identity_url.value.clone();
@@ -183,7 +183,7 @@ impl Config {
 #[derive(Default, PartialEq, Eq)]
 enum Focus {
     #[default]
-    Username,
+    UserId,
     Password,
     TenantId,
     IdentityUrl,
@@ -192,10 +192,10 @@ enum Focus {
 impl Focus {
     const fn next(&self) -> Self {
         match self {
-            Self::Username => Self::Password,
+            Self::UserId => Self::Password,
             Self::Password => Self::TenantId,
             Self::TenantId => Self::IdentityUrl,
-            Self::IdentityUrl => Self::Username,
+            Self::IdentityUrl => Self::UserId,
         }
     }
 }
@@ -326,7 +326,7 @@ pub fn load() -> Config {
 }
 
 fn validate(config: &Config) -> bool {
-    !config.fields.username.value.is_empty()
+    !config.fields.userid.value.is_empty()
         && !config.fields.password.value.is_empty()
         && !config.fields.tenantid.value.is_empty()
         && !config.fields.identity_url.value.is_empty()

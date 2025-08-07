@@ -17,7 +17,7 @@ pub struct TokenResponse {
 
 // Issue token
 pub async fn issue_token(
-    username: String,
+    userid: String,
     password: String,
     tenantid: String,
     identity_url: String,
@@ -30,7 +30,7 @@ pub async fn issue_token(
                 "methods": ["password"],
                 "password": {
                     "user": {
-                        "id": username,
+                        "id": userid,
                         "password": password,
                     }
                 }
@@ -115,13 +115,13 @@ mod tests {
     #[tokio::test]
     async fn test_issue_token_success() {
         // Set environment variables and dummy values for testing
-        let username = "dummy_user".to_string();
+        let userid = "dummy_user".to_string();
         let password = "dummy_pass".to_string();
         let tenantid = "dummy_tenant".to_string();
         let identity_url = env::var("OS_IDENTITY_URL").unwrap_or_else(|_| "http://localhost:5000".to_string());
 
         // use a mock server in the test environment or skip on failure
-        let result = issue_token(username, password, tenantid, identity_url).await;
+        let result = issue_token(userid, password, tenantid, identity_url).await;
         match result {
             Ok(token_response) => {
                 // Check that token and endpoints are obtained
